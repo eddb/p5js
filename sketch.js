@@ -5,29 +5,45 @@ const CMYK = [
   { r: 0,   g: 0,   b: 0,   offset: 15 },  // Key (Black)
 ];
 
+let cx, cy;
+let velX = 0, velY = 0;
+
+const STIFFNESS = 0.04;
+const DAMPING   = 0.82;
+
 function setup() {
   createCanvas(600, 600);
   rectMode(CENTER);
   noStroke();
   angleMode(DEGREES);
+  cx = width  / 2;
+  cy = height / 2;
 }
 
 function draw() {
+  // Spring physics — target is mouse when inside canvas, else canvas center
+  const insideCanvas = mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height;
+  const targetX = insideCanvas ? mouseX : width  / 2;
+  const targetY = insideCanvas ? mouseY : height / 2;
+
+  velX += (targetX - cx) * STIFFNESS;
+  velY += (targetY - cy) * STIFFNESS;
+  velX *= DAMPING;
+  velY *= DAMPING;
+  cx += velX;
+  cy += velY;
+
   background(255);
   blendMode(MULTIPLY);
 
-  const rows = 18;
-  const cols = 18;
-
-  const marginX = 20;
-  const marginY = 20;
-  const spacingX = (width - 2 * marginX) / (cols - 1);
+  const rows = 10;
+  const cols = 10;
+  const marginX  = 40;
+  const marginY  = 40;
+  const spacingX = (width  - 2 * marginX) / (cols - 1);
   const spacingY = (height - 2 * marginY) / (rows - 1);
-  const squareSize = 20;
-
-  const cx = mouseX > 0 && mouseX < width ? mouseX : width / 2;
-  const cy = mouseY > 0 && mouseY < height ? mouseY : height / 2;
-  const maxDist = dist(marginX, marginY, width / 2, height / 2);
+  const squareSize = 40;
+  const maxDist  = dist(marginX, marginY, width / 2, height / 2);
 
   for (const layer of CMYK) {
     fill(layer.r, layer.g, layer.b);
@@ -35,12 +51,11 @@ function draw() {
       for (let j = 0; j < cols; j++) {
         const x = marginX + j * spacingX;
         const y = marginY + i * spacingY;
-
-        const rotationAngle = map(dist(x, y, cx, cy), 0, maxDist, 100, 0) + layer.offset;
+        const angle = map(dist(x, y, cx, cy), 0, maxDist, 100, 0) + layer.offset;
 
         push();
         translate(x, y);
-        rotate(rotationAngle);
+        rotate(angle);
         rect(0, 0, squareSize, squareSize);
         pop();
       }
