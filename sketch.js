@@ -14,7 +14,8 @@ const DAMPING   = 0.82;
 function setup() {
   createCanvas(600, 600);
   rectMode(CENTER);
-  noStroke();
+  noFill();
+  strokeWeight(2);
   angleMode(DEGREES);
   cx = width  / 2;
   cy = height / 2;
@@ -46,7 +47,7 @@ function draw() {
   const maxDist  = dist(marginX, marginY, width / 2, height / 2);
 
   for (const layer of CMYK) {
-    fill(layer.r, layer.g, layer.b);
+    stroke(layer.r, layer.g, layer.b);
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < cols; j++) {
         const x = marginX + j * spacingX;
