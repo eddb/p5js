@@ -1,3 +1,4 @@
+// https://editor.p5js.org/eddb/sketches/czhDa0VJ8 
 const CMYK = [
   { r: 0,   g: 255, b: 255, offset: 0,  stiffness: 0.10 },  // Cyan   — fastest
   { r: 255, g: 0,   b: 255, offset: 5,  stiffness: 0.07 },  // Magenta
