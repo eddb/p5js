@@ -47,7 +47,7 @@ function draw() {
   const spacingX   = (width  - 2 * marginX) / (cols - 1);
   const spacingY   = (height - 2 * marginY) / (rows - 1);
   const squareSize = 40;
-  const maxDist    = dist(marginX, marginY, width / 2, height / 2);
+  const cornerDist = dist(marginX, marginY, width / 2, height / 2);
 
   for (const layer of CMYK) {
     stroke(layer.r, layer.g, layer.b);
@@ -55,7 +55,7 @@ function draw() {
       for (let j = 0; j < cols; j++) {
         const x = marginX + j * spacingX;
         const y = marginY + i * spacingY;
-        const angle = map(dist(x, y, layer.cx, layer.cy), 0, maxDist, 100, 0) + layer.offset;
+        const angle = map(dist(x, y, layer.cx, layer.cy), 0, cornerDist, 100, 0) + layer.offset;
 
         push();
         translate(x, y);
