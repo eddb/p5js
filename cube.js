@@ -2,14 +2,15 @@ const COLS    = 8;
 const ROWS    = 8;
 const H       = 26;
 const SPACING = 74;
+const DEPTH   = 380;   // controls how aggressively cubes lean toward mouse
 
 const STIFFNESS = 0.06;
 const DAMPING   = 0.80;
 
-let rotX = 20;
-let rotY = 0;
-let velX = 0;
-let velY = 0;
+let smx = 0;   // smoothed mouse in WEBGL coords (origin = canvas centre)
+let smy = 0;
+let vx  = 0;
+let vy  = 0;
 
 function setup() {
   createCanvas(600, 600, WEBGL);
@@ -21,19 +22,17 @@ function draw() {
   background(0);
   ambientLight(255);
 
-  const inside  = mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height;
-  const targetX = inside ? map(mouseY, 0, height, 38, -8) : 20;
-  const targetY = inside ? map(mouseX, 0, width, -45, 45) : 0;
+  // Spring-smooth the mouse; settle to centre when outside canvas
+  const inside = mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height;
+  const tx = inside ? mouseX - width  / 2 : 0;
+  const ty = inside ? mouseY - height / 2 : 0;
 
-  velX += (targetX - rotX) * STIFFNESS;
-  velY += (targetY - rotY) * STIFFNESS;
-  velX *= DAMPING;
-  velY *= DAMPING;
-  rotX += velX;
-  rotY += velY;
-
-  rotateX(rotX);
-  rotateY(rotY);
+  vx  += (tx - smx) * STIFFNESS;
+  vy  += (ty - smy) * STIFFNESS;
+  vx  *= DAMPING;
+  vy  *= DAMPING;
+  smx += vx;
+  smy += vy;
 
   for (let i = 0; i < ROWS; i++) {
     for (let j = 0; j < COLS; j++) {
@@ -42,15 +41,20 @@ function draw() {
       const tx = j / (COLS - 1);
       const ty = i / (ROWS - 1);
 
+      // Each cube independently faces the mouse
+      const rY =      atan2(smx - x,  DEPTH);
+      const rX = 20 + atan2(y   - smy, DEPTH);
+
       push();
       translate(x, y, 0);
+      rotateX(rX);
+      rotateY(rY);
       coloredBox(H, tx, ty);
       pop();
     }
   }
 }
 
-// Cycles through an iridescent hue range, offset in degrees
 function iridColor(t, hueOffset) {
   const h = ((t * 300 + hueOffset) % 360 + 360) % 360;
   return hsbToRgb(h, 0.93, 1.0);
